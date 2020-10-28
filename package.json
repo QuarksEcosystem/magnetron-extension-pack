@@ -3,6 +3,7 @@
     "displayName": "magnetron-extension-pack",
     "description": "Quarks Magnetron Extension Pack for VSCode",
     "version": "0.0.1",
+    "publisher": "QuarksEcosystem",
     "engines": {
         "vscode": "^1.50.0"
     },

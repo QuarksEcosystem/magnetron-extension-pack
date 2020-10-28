@@ -1,16 +1,32 @@
-# README
+# Magnetron Extension Pack
 
-## This is the README for your extension pack "magnetron-extension-pack"
+> An opinionated extension pack for VS Code.
 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+This extension pack provides the following extensions:
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
+- [Magnetron BPMN](https://github.com/QuarksEcosystem/vs-code-magnetron-bpmn) - VS Code Extension for Displaying and Editing BPMN Features Files
 
-## For more information
+- [Swagger Viewer](https://marketplace.visualstudio.com/items?itemName=Arjun.swagger-viewer) - Swagger Viewer lets you preview and validate Swagger 2.0 and OpenAPI files as you type in Visual Studio Code.
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
-**Enjoy!**
+# Development
+
+- Clone the repo
+
+```bash
+$ git clone https://github.com/robertoachar/vscode-extension-pack.git
+```
+
+- Build the extension file
+
+```bash
+$ npx vsce package
+```
+
+- Install the extension from a package file (.vsix)
+
+1. Launch Visual Studio Code
+2. Choose **Extensions** from menu
+3. Click **More** > **Install from VSIX...**
+4. Select the file `vscode-extension-pack-x.x.x.vsix`
+5. Click **Reload Now** to reload the Code
