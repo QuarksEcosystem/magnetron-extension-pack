@@ -4,6 +4,7 @@
     "description": "Quarks Magnetron Extension Pack for VSCode",
     "version": "0.0.1",
     "publisher": "QuarksEcosystem",
+    "repository": "https://github.com/QuarksEcosystem/magnetron-extension-pack",
     "engines": {
         "vscode": "^1.50.0"
     },
@@ -13,5 +14,8 @@
     "extensionPack": [ 
         "QuarksEcosystem.vs-code-magnetron-bpmn",
         "arjun.swagger-viewer"
-    ]
+    ],
+    "scripts": {
+        "package": "npx vsce package"
+    }
 }
