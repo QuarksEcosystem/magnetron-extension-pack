@@ -11,11 +11,18 @@
     "categories": [
         "Extension Packs"
     ],
-    "extensionPack": [ 
-        "QuarksEcosystem.vs-code-magnetron-bpmn",
+    "extensionPack": [
         "arjun.swagger-viewer"
     ],
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./extension.js",
     "scripts": {
         "package": "npx vsce package"
+    },
+    "dependencies": {
+        "fs-extra": "^9.0.1",
+        "node-fetch": "^2.6.1"
     }
 }
