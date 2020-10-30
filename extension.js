@@ -17,6 +17,7 @@ const { spawn } = require("child_process");
 const { ensureDir } = require("fs-extra");
 const {
   window: { showInformationMessage, showErrorMessage },
+  commands,
 } = vscode;
 
 const quarksExtensions = ["vs-code-magnetron-bpmn"];
@@ -50,13 +51,13 @@ async function postInstallOrUpdate(context, ext, version, url) {
 
   showInformationMessage(`Downloading ${ext}...`);
 
-  const tmpPath = "/home/guilherme/vscode-quarks-extensions/";
-  ensureDir(tmpPath)
+  const tmpPath = "~/.quarks/vscode-quarks-extensions/";
+  return ensureDir(tmpPath)
     .then(() => {
       const fileName = `${ext}-${version}.vsix`;
       const tempFile = tmpPath + fileName;
       const dest = fs.createWriteStream(tempFile);
-      downloadFile(url, dest)
+      return downloadFile(url, dest)
         .then(() => {
           const codeProcess = spawn("code", ["--install-extension", tempFile]);
           const codeProcessErrors = [];
@@ -66,7 +67,7 @@ async function postInstallOrUpdate(context, ext, version, url) {
                 `${ext} version ${version} installed successfully`
               );
 
-              await context.globalState.update(`${ext}-lastVersion`, version);
+              return await context.globalState.update(`${ext}-lastVersion`, version);
             } else {
               showInformationMessage(
                 `Error installing ${ext}: code --install-extension command exited with code ${exitCode}.` +
@@ -149,7 +150,7 @@ exports.activate = async function activate(context) {
       }));
     });
 
-  await Promise.all(
+  Promise.all(
     quarksExtensions.map((ext, index) => {
       if (
         latestVersions[index].version !== installedVersions[index] ||
@@ -162,6 +163,18 @@ exports.activate = async function activate(context) {
           latestVersions[index].assetUrl
         );
       }
+
+      return Promise.resolve(true);
     })
-  );
+  ).then((installed) => {
+    if (installed.filter(i => !i).length > 0) {
+      showInformationMessage(
+        "All Magnetron Extensions installed, reload VSCode",
+        "Reload"
+      ).then(async (action) => {
+        if (action === "Reload")
+          commands.executeCommand("workbench.action.reloadWindow");
+      });
+    }
+  });
 };
