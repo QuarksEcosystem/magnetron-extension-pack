@@ -8,11 +8,13 @@
     "engines": {
         "vscode": "^1.50.0"
     },
+    "icon": "resources/magnetron.png",
     "categories": [
         "Extension Packs"
     ],
     "extensionPack": [
-        "arjun.swagger-viewer"
+        "arjun.swagger-viewer",
+        "QuarksEcosystem.vs-code-magnetron-bpmn"
     ],
     "activationEvents": [
         "*"
