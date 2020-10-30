@@ -51,7 +51,7 @@ async function postInstallOrUpdate(context, ext, version, url) {
 
   showInformationMessage(`Downloading ${ext}...`);
 
-  const tmpPath = "~/.quarks/vscode-quarks-extensions/";
+  const tmpPath = ".quarks/vscode-quarks-extensions/";
   return ensureDir(tmpPath)
     .then(() => {
       const fileName = `${ext}-${version}.vsix`;
