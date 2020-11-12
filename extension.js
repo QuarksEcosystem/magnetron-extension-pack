@@ -20,7 +20,7 @@ const {
   commands,
 } = vscode;
 
-const quarksExtensions = ["vs-code-magnetron-bpmn", "vscode-magnetron-bpmn-editor"];
+const quarksExtensions = ["vscode-magnetron-bpmn-editor"];
 const marketplaceExtensions = ["arjun.swagger-viewer"];
 
 function downloadFile(url, w) {

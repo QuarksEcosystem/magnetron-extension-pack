@@ -14,7 +14,6 @@
     ],
     "extensionPack": [
         "arjun.swagger-viewer",
-        "QuarksEcosystem.vs-code-magnetron-bpmn",
         "QuarksEcosystem.vscode-magnetron-bpmn-editor"
     ],
     "activationEvents": [
