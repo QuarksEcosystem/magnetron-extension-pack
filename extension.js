@@ -12,8 +12,9 @@ const vscode = require("vscode");
 const http = require("http");
 const https = require("https");
 const fetch = require("node-fetch");
+const { platform } = require("os");
 const fs = require("fs");
-const { spawn } = require("child_process");
+const { exec } = require("child_process");
 const { ensureDir } = require("fs-extra");
 const {
   window: { showInformationMessage, showErrorMessage },
@@ -42,6 +43,23 @@ function downloadFile(url, w) {
   });
 }
 
+async function genCodeProcess(args) {
+  const osType = platform();
+  return new Promise((resolve, reject) => {
+    exec(`${osType === 'win32' ? 'code.cmd' : 'code'} ${args}`, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      }
+      resolve({ stdout, stderr });
+    });
+  })
+
+}
+
+async function codeProcessInstall(tempFile) {
+  return genCodeProcess('--install-extension ' + tempFile);
+}
+
 async function postInstallOrUpdate(context, ext, version, url) {
   // If we were using only extensions available in the VS Code marketplace, we would be done at this point.
   // But we also need to install an unofficial fork of the vscode-styled-components, as described above.
@@ -51,7 +69,9 @@ async function postInstallOrUpdate(context, ext, version, url) {
 
   showInformationMessage(`Downloading ${ext}...`);
 
-  const tmpPath = ".quarks/vscode-quarks-extensions/";
+  const osType = platform();
+  const rootPath = osType === "win32" ? process.env.TEMP : process.env.HOME;
+  const tmpPath = rootPath + "/.quarks/vscode-quarks-extensions/";
   return ensureDir(tmpPath)
     .then(() => {
       const fileName = `${ext}-${version}.vsix`;
@@ -59,26 +79,29 @@ async function postInstallOrUpdate(context, ext, version, url) {
       const dest = fs.createWriteStream(tempFile);
       return downloadFile(url, dest)
         .then(() => {
-          const codeProcess = spawn("code", ["--install-extension", tempFile]);
-          const codeProcessErrors = [];
-          codeProcess.on("close", async (exitCode) => {
-            if (exitCode === 0) {
+          return codeProcessInstall(tempFile)
+            .then(async (result) => {
+              console.log(result);
+
               showInformationMessage(
                 `${ext} version ${version} installed successfully`
               );
 
-              return await context.globalState.update(`${ext}-lastVersion`, version);
-            } else {
-              showInformationMessage(
-                `Error installing ${ext}: code --install-extension command exited with code ${exitCode}.` +
-                  `Error messages: ${codeProcessErrors.join(", ")}`
+              await context.globalState.update(
+                `${ext}-lastVersion`,
+                version
               );
-            }
-            fs.unlink(tmpPath, () => ({}));
-          });
-          codeProcess.stderr.on("data", (message) => {
-            codeProcessErrors.push(message);
-          });
+
+              return 'installed';
+            })
+            .catch((err) => {
+              showInformationMessage(
+                `Error installing ${ext}: code --install-extension command.` +
+                `Error messages: ${err}`
+              );
+
+              return 'failed';
+            });
         })
         .catch((err) => {
           showErrorMessage(err.message);
@@ -111,12 +134,9 @@ exports.activate = async function activate(context) {
   //
   // Also note that if this extension pack is uninstalled, vscode-styled-components-FORK is not automatically uninstalled with it.
   const installedExtensions = await new Promise((resolve, reject) => {
-    const resolveValue = [];
-    spawn("code", ["--list-extensions"])
-      .stdout.on("data", async (data) => {
-        resolveValue.push(data.toString());
-      })
-      .on("end", () => resolve(resolveValue.join("")));
+    genCodeProcess('--list-extensions').then((result) => {
+      resolve(result.stdout);
+    }).catch(err => reject(err));
   });
 
   const installedVersions = await Promise.all(
@@ -150,6 +170,8 @@ exports.activate = async function activate(context) {
       }));
     });
 
+  console.log({ installedExtensions, installedVersions, latestVersions });
+
   Promise.all(
     quarksExtensions.map((ext, index) => {
       if (
@@ -164,17 +186,22 @@ exports.activate = async function activate(context) {
         );
       }
 
-      return Promise.resolve(true);
+      return Promise.resolve('active');
     })
-  ).then((installed) => {
-    if (installed.filter(i => !i).length > 0) {
-      showInformationMessage(
-        "All Magnetron Extensions installed, reload VSCode",
-        "Reload"
-      ).then(async (action) => {
-        if (action === "Reload")
-          commands.executeCommand("workbench.action.reloadWindow");
-      });
-    }
-  });
+  )
+    .then((installed) => {
+      console.log(installed);
+      if (installed.filter((i) => i === 'installed').length > 0) {
+        showInformationMessage(
+          "All Magnetron Extensions installed, reload VSCode",
+          "Reload"
+        ).then(async (action) => {
+          if (action === "Reload")
+            commands.executeCommand("workbench.action.reloadWindow");
+        });
+      } else if (installed.filter((i) => i === 'failed').length > 0) {
+        showErrorMessage("One or more extension not installed");
+      }
+    })
+    .catch((error) => console.log(error));
 };
