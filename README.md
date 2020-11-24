@@ -14,7 +14,7 @@ This extension pack provides the following extensions:
 - Clone the repo
 
 ```bash
-$ git clone https://github.com/robertoachar/vscode-extension-pack.git
+$ git clone https://github.com/QuarksEcosystem/magnetron-extension-pack
 ```
 
 - Build the extension file
@@ -28,5 +28,5 @@ $ npx vsce package
 1. Launch Visual Studio Code
 2. Choose **Extensions** from menu
 3. Click **More** > **Install from VSIX...**
-4. Select the file `vscode-extension-pack-x.x.x.vsix`
+4. Select the file `magnetron-extension-pack-x.x.x.vsix`
 5. Click **Reload Now** to reload the Code
